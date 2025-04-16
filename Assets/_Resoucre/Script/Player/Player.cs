@@ -1,4 +1,6 @@
 ﻿using Fusion;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Player : NetworkBehaviour
@@ -10,6 +12,7 @@ public class Player : NetworkBehaviour
 
     [Header("Movement Infor")]
     private Vector3 currentDir;
+    [SerializeField] private float camOfsetZ;
     [SerializeField] private float moveSpeed;
 
     [Header("Jump infor")]
@@ -23,9 +26,17 @@ public class Player : NetworkBehaviour
     [SerializeField] private float maxJumpHeight;
 
     [Header("Attack Info")]
-    [SerializeField] private IWeapon weapon;
+    [SerializeField] private bool isTrigger;
     [SerializeField] private Transform weaponHandPos;
-    
+    [Networked, OnChangedRender(nameof(RPC_Weapon))]
+    public WeaponBase weapon { get; set; }
+
+    //Sysn name
+    [Networked, OnChangedRender(nameof(OnChangeNameCharacter))]
+    public string nameCharacter { get; set; }
+
+    [SerializeField] private UiLabelName uiLabelName;
+
 
     #region State
     private StateManager stateManager;
@@ -34,6 +45,7 @@ public class Player : NetworkBehaviour
 
     public Vector3 Velocity { get => velocity; }
     public PlayerInput _Input { get => input; }
+    public bool IsTrigger { get => isTrigger; }
     public override void Spawned()
     {
         if (HasStateAuthority)
@@ -50,7 +62,10 @@ public class Player : NetworkBehaviour
             stateManager.InitState(factory.GetState(PlayerState.IDLE));
             currentDir = transform.position;
             velocity = transform.position;
+            nameCharacter = LocalData.name;
         }
+
+        OnChangeNameCharacter();
     }
 
     // Update is called once per frame
@@ -60,6 +75,12 @@ public class Player : NetworkBehaviour
         {
             return;
         }
+
+        if (!GameManager.instance.gameStart)
+        {
+            return;
+        }
+
         stateManager.CurrentState.ExcuteState();
     }
 
@@ -68,18 +89,57 @@ public class Player : NetworkBehaviour
     {
         anim.Animator.SetBool(name, isTransition);
     }
+
+    private void OnChangeNameCharacter()
+    {
+        if (HasInputAuthority)
+        {
+            return; // không cho phép hiện tên ở phía local
+        }
+
+        if (uiLabelName == null) return;
+
+        Debug.Log("Change name");
+        uiLabelName.SetUpLabelname(nameCharacter);
+    }
+
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    private void RPC_Weapon()
+    {
+        if (weapon == null) return;
+
+        weapon.SetPostion(weaponHandPos , new Vector3(180 , 0 , 170));
+    }
+    public void SetUpCamera()
+    {
+        CameraFollow folow = FindFirstObjectByType<CameraFollow>();
+        if (folow != null)
+        {
+            folow.SetUpCamera(this.transform);
+        }
+    }
+
     #endregion
 
     #region Handler State
     public void RunHandler()
     {
         controller.Move(input._InputCharacter.moveDirection * moveSpeed * Runner.DeltaTime);
-        transform.rotation = input._InputCharacter.LookRotation;       
+        transform.rotation = input._InputCharacter.LookRotation;
         anim.Animator.SetFloat(constant.HORIZONTAL, GetVariableRun());
     }
 
+    public void AttackHander()
+    {
+        if (weapon == null) return;
+
+        weapon.Handler.ActiveCollider();
+    }
     public void JumpHandler()
     {
+        velocity.x = 0;
+        velocity.z = 0;
         velocity.y = Mathf.Sqrt(maxJumpHeight * -2f * gravity);
     }
 
@@ -126,17 +186,32 @@ public class Player : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!HasInputAuthority) return;
+
         if (weapon != null) return;
+
 
         if (other.CompareTag("Weapon"))
         {
+            WeaponBase tmp = other.GetComponent<WeaponBase>();
+            if (tmp.IsPicked) return;
 
-            weapon = other.GetComponent<IWeapon>();
-            if(weapon != null)
+            if (tmp != null)
             {
-                weapon.SetPostion(weaponHandPos);
+                weapon = tmp;
+                RPC_Weapon();
             }
         }
+    }
+
+    public void AnimTriggerTrue()
+    {
+        isTrigger = true;
+    }
+
+    public void AnimTriggerFalse()
+    {
+        isTrigger = false;
     }
 
 
@@ -154,7 +229,7 @@ public enum PlayerState
     IDLE,
     RUN,
     JUMP,
-    AIR,
+    ATTACK,
     NONE
 }
 

@@ -12,6 +12,7 @@ public class PlayerInput : MonoBehaviour
         float vertical = Input.GetAxis("Vertical");
 
         Vector3 dir = Camera.main.transform.forward * vertical + Camera.main.transform.right * horizontal;
+        dir.y = 0;
         dir.Normalize();
         _input.moveDirection = dir;
 
@@ -33,6 +34,7 @@ public class PlayerInput : MonoBehaviour
         _input.LookRotation = Quaternion.identity;
         _input.isRun = false;
         _input.isJump = false;
+        _input.isAttack = false;
     }
 }
 

@@ -10,11 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 3710395810320188230}
   - component: {fileID: 2266428698359763766}
-  - component: {fileID: 1324837848744893688}
   - component: {fileID: 523973743295828242}
   - component: {fileID: 7816970640640960763}
-  - component: {fileID: 5837331908103355485}
   - component: {fileID: 1998578385850696747}
+  - component: {fileID: 9178832499426765266}
   m_Layer: 0
   m_Name: Axe
   m_TagString: Weapon
@@ -57,29 +56,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.33531988, y: 1.6875957, z: 0.13969143}
-  m_Center: {x: 0.0062588975, y: 0.5590962, z: -0.03553188}
---- !u!135 &1324837848744893688
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3774616701210295030}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.44
-  m_Center: {x: 0, y: 1.16, z: 0}
+  m_Size: {x: 0.10250282, y: 1.2602855, z: 0.07748629}
+  m_Center: {x: 0.0071964264, y: 0.3454411, z: -0.004429303}
 --- !u!54 &523973743295828242
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -124,9 +102,26 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 5837331908103355485}
+  - {fileID: 1998578385850696747}
+  - {fileID: 9178832499426765266}
+  - {fileID: 1943066760243171766}
   ForceRemoteRenderTimeframe: 0
---- !u!114 &5837331908103355485
+--- !u!114 &1998578385850696747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3774616701210295030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18c7c6a8aa496274cbba7b8c07cdc170, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dameWeapon: 0
+  timeStun: 0
+  weightWeapon: 0
+--- !u!114 &9178832499426765266
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,22 +138,6 @@ MonoBehaviour:
   SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
---- !u!114 &1998578385850696747
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3774616701210295030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18c7c6a8aa496274cbba7b8c07cdc170, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dameWeapon: 0
-  timeStun: 0
-  weightWeapon: 0
-  customRotation: {x: -24, y: 47, z: -125}
 --- !u!1001 &1294663743377010454
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -177,15 +156,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.172
+      value: 0.015
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7660445
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
       propertyPath: m_LocalRotation.x
@@ -193,7 +172,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0.6427876
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
       propertyPath: m_LocalRotation.z
@@ -205,7 +184,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -80
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -214,8 +193,53 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 434954063091111581}
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1943066760243171766}
   m_SourcePrefab: {fileID: 100100000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
+--- !u!1 &1294663743377107382 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}
+  m_PrefabInstance: {fileID: 1294663743377010454}
+  m_PrefabAsset: {fileID: 0}
+--- !u!135 &434954063091111581
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294663743377107382}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Radius: 0.327955
+  m_Center: {x: -0.15126246, y: 1.1, z: -0.01}
+--- !u!114 &1943066760243171766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294663743377107382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85c2ba9990f183848b8b2ca80a541770, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collider: {fileID: 434954063091111581}
 --- !u!4 &1294663743377405334 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: fd0ffa1388a246e4ba99b70a6e50d39b, type: 3}

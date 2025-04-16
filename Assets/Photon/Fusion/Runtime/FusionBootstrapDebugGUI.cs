@@ -189,8 +189,7 @@ namespace Fusion {
               GUILayout.Label("Room:", GUILayout.Height(height), GUILayout.Width(width * .33f));
               nds.DefaultRoomName = GUILayout.TextField(nds.DefaultRoomName, 25, GUILayout.Height(height));
             }
-            GUILayout.EndHorizontal();
-
+            GUILayout.EndHorizontal(); 
             if (GUILayout.Button(EnableHotkeys ? "Start Single Player (I)" : "Start Single Player", GUILayout.Height(height))) {
               nds.StartSinglePlayer();
             }

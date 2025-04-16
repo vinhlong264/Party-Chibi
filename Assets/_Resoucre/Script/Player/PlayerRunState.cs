@@ -11,12 +11,13 @@ public class PlayerRunState : PlayerGroundState
 
     public override void ExcuteState()
     {
-        base.ExcuteState();
         entity.RunHandler();
         if (!entity.CheckInputMove())
         {
             SwitchState(entity.factory.GetState(PlayerState.IDLE));
+            return;
         }
+        base.ExcuteState();
     }
 
     public override void ExitState()

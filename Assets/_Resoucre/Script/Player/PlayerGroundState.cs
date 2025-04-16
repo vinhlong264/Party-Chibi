@@ -12,6 +12,15 @@ public class PlayerGroundState : EntityState<Player>
         {
             SwitchState(entity.factory.GetState(PlayerState.JUMP));
             entity._Input.ResetInput();
+            return;
+        }
+
+        if (entity.GetInput().isAttack)
+        {
+            Debug.Log("Attack change");
+            SwitchState(entity.factory.GetState(PlayerState.ATTACK));
+            entity._Input.ResetInput();
+            return;
         }
     }
 }

@@ -2,6 +2,7 @@ public abstract class EntityState<T> : IState
 {
     protected StateManager stateManager;
     protected T entity;
+    protected bool isTrigger;
 
     protected EntityState(StateManager stateManager, T entity)
     {

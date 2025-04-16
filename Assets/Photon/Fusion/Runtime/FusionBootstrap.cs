@@ -115,7 +115,9 @@ namespace Fusion {
     /// </summary>
     [InlineHelp]
     public string DefaultRoomName = string.Empty; // empty/null means Random Room Name
-
+    [InlineHelp]
+    public string DefaultPlayerName = string.Empty;
+    
     [NonSerialized]
     NetworkRunner _server;
 
