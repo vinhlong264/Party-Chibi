@@ -1,6 +1,5 @@
 ﻿using Fusion;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerStats : NetworkBehaviour, IDameHandler
 {
@@ -10,11 +9,33 @@ public class PlayerStats : NetworkBehaviour, IDameHandler
     private int maxHealth;
     private float timeStunDuration;
 
+    [Networked]
+    public int score { get; set;}
+
+    [Networked]
+    public string namePlayer { get; set; }
+
     public override void Spawned()
     {
-        maxHealth = 100;
-        currentHealth = maxHealth;
-        EventChanel.NotifyEvent(KeyEvent.HealthBar, new object[] { (float)maxHealth, (float)currentHealth });
+        if (HasInputAuthority)
+        {
+            maxHealth = 100;
+            currentHealth = maxHealth;
+            EventChanel.NotifyEvent(KeyEvent.HealthBar, new object[] { (float)maxHealth, (float)currentHealth });
+            namePlayer = LocalData.name;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Score"))
+        {
+            if (HasInputAuthority)
+            {
+                RPC_ScoreCollect();
+            }
+            Runner.Despawn(other.GetComponent<NetworkObject>());
+        }
     }
 
     public void TakeDame(int dame)
@@ -29,6 +50,17 @@ public class PlayerStats : NetworkBehaviour, IDameHandler
     {
         timeStunDuration = timeStun;
     }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    private void RPC_ScoreCollect()
+    {
+        Debug.Log("Score đucợ ăn bởi: " + Runner.LocalPlayer.PlayerId);
+        score++;
+        GameManager.instance.RPC_updateHighScore();
+    }
+
+
+
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     private void RPC_TakeDame(int dame)

@@ -2370,7 +2370,10 @@ namespace PlayFab
             PlayFabHttp.MakeApiCall("/Client/WriteTitleEvent", request, AuthType.LoginSession, resultCallback, errorCallback, customData, extraHeaders, context, callSettings);
         }
 
-
+        public static void LoginWithAndroidDeviceID(LoginWithCustomIDRequest request, Action<LoginResult> onSuccess, Action<PlayFabError> onError)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

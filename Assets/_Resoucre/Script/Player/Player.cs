@@ -1,6 +1,4 @@
 ﻿using Fusion;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Player : NetworkBehaviour
@@ -76,7 +74,7 @@ public class Player : NetworkBehaviour
             return;
         }
 
-        if (!GameManager.instance.gameStart)
+        if (GameManager.instance.gameState != GameState.Playing)
         {
             return;
         }
@@ -92,15 +90,10 @@ public class Player : NetworkBehaviour
 
     private void OnChangeNameCharacter()
     {
-        if (HasInputAuthority)
-        {
-            return; // không cho phép hiện tên ở phía local
-        }
-
         if (uiLabelName == null) return;
 
         Debug.Log("Change name");
-        uiLabelName.SetUpLabelname(nameCharacter);
+        uiLabelName.SetUpLabelname(nameCharacter, HasInputAuthority);
     }
 
 
@@ -109,7 +102,7 @@ public class Player : NetworkBehaviour
     {
         if (weapon == null) return;
 
-        weapon.SetPostion(weaponHandPos , new Vector3(180 , 0 , 170));
+        weapon.SetPostion(weaponHandPos, new Vector3(180, 0, 170));
     }
     public void SetUpCamera()
     {
@@ -134,7 +127,14 @@ public class Player : NetworkBehaviour
     {
         if (weapon == null) return;
 
-        weapon.Handler.ActiveCollider();
+        if (weapon.Handler != null)
+        {
+            weapon.Handler.ActiveCollider();
+        }
+        else
+        {
+            weapon.ExcuteWeapon(weaponHandPos.position, transform.forward);
+        }
     }
     public void JumpHandler()
     {
@@ -213,9 +213,6 @@ public class Player : NetworkBehaviour
     {
         isTrigger = false;
     }
-
-
-
 
     private void OnDrawGizmos()
     {

@@ -1,27 +1,44 @@
 using Fusion;
 using Fusion.Sockets;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 {
     public static GameManager instance;
     private int playerRequire = 2;
-    public float startTime;
+    private TickTimer timer;
+
+    [Networked, OnChangedRender(nameof(SysnGameTimerStart))]
+    public float gameTimer { get; set; }
+
+    [Networked,OnChangedRender(nameof(RPC_SysnTimePlaying))]
+    public float gameTimePlay { get; set; }
+
     private Text timeTxt;
+    private TextMeshProUGUI gameTimerTxt;
+
     [SerializeField] private Transform[] pointArray;
     [SerializeField] private NetworkObject weapon;
 
-    [Networked]
-    public NetworkBool gameStart { get; set; }
-    public NetworkBool CanSpawn { get; set; }
-
+    [Networked, OnChangedRender(nameof(SysnGameTimerStart))]
+    public GameState gameState { get; set; }
+    public NetworkBool CanSpawnWeapon { get; set; }
 
     //Object Pooling
     private Dictionary<NetworkObject, List<NetworkObject>> pools = new Dictionary<NetworkObject, List<NetworkObject>>();
+
+    public ResultGame result;
+
+    //HighScore
+
+    public NetworkObject content;
+    public Transform parent;
+
+
     private void Awake()
     {
         if (instance != null)
@@ -34,7 +51,12 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
         }
 
         timeTxt = GameObject.Find("TimeStar").GetComponent<Text>();
+        gameTimerTxt = GameObject.Find("TimeGame").GetComponent<TextMeshProUGUI>();
+
+
         timeTxt.gameObject.SetActive(false);
+
+        result = ResultGame.None;
     }
 
     private void OnDestroy()
@@ -48,8 +70,88 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     public override void Spawned()
     {
         Runner.AddCallbacks(this);
+        if (HasStateAuthority)
+        {
+            timer = TickTimer.None;
+            gameTimer = 0;
+            gameState = GameState.WaitPlayers;
+        }
     }
 
+    public override void FixedUpdateNetwork()
+    {
+        CheckGameStart();
+
+        if(gameState == GameState.Playing)
+        {
+            RPC_SysnTimePlaying();
+        }
+    }
+
+    private void CheckGameStart()
+    {
+        if (gameState == GameState.Playing) return;
+
+        if (Runner.ActivePlayers.Count() >= playerRequire && !CanSpawnWeapon)
+        {
+            gameState = GameState.Starting;
+            gameTimer += Runner.DeltaTime;
+
+            if (gameTimer >= 15)
+            {
+                gameState = GameState.Playing;
+                gameTimer = 0;
+                RPC_SysnGame();
+                EventChanel.NotifyEvent(KeyEvent.System, null);
+            }
+        }
+    }
+
+
+
+
+    private void SysnGameTimerStart()
+    {
+        if (gameState == GameState.Starting)
+        {
+            timeTxt.gameObject.SetActive(true);
+            timeTxt.text = gameTimer.ToString("F2");
+        }
+        else if (gameState == GameState.Playing)
+        {
+            timeTxt.gameObject.SetActive(false);
+        }
+    }
+
+    [Rpc(RpcSources.All , RpcTargets.All)]
+    public void RPC_SysnTimePlaying()
+    {
+        gameTimePlay += Runner.DeltaTime;
+        int minues = Mathf.FloorToInt(gameTimePlay / 60);
+        int second = Mathf.FloorToInt(gameTimePlay % 60);
+
+        gameTimerTxt.text = $"{minues} : {second}";
+    }
+
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_SysnGame()
+    {
+        if (!Runner.IsSharedModeMasterClient) return;
+
+        for (int i = 0; i < pointArray.Length; i++)
+        {
+            NetworkObject tmp = GetObjectToPools(weapon);
+            if (tmp == null)
+            {
+                tmp.transform.position = pointArray[i].position;
+                tmp.transform.rotation = Quaternion.identity;
+            }
+        }
+        CanSpawnWeapon = true;
+    }
+
+    //Object Pooling
     public NetworkObject GetObjectToPools(NetworkObject key)
     {
         List<NetworkObject> tmp_pools = new List<NetworkObject>();
@@ -63,7 +165,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
             pools.Add(key, tmp_pools);
         }
 
-        foreach(var g in tmp_pools)
+        foreach (var g in tmp_pools)
         {
             if (g.gameObject.activeSelf)
             {
@@ -81,145 +183,136 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     }
 
 
-    private void CheckGameStart()
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void RPC_updateHighScore()
     {
-        if (Runner.ActivePlayers.Count() >= playerRequire && !CanSpawn)
+        List<PlayerStats> stats = new List<PlayerStats>();
+        foreach(var p in Runner.ActivePlayers)
         {
-            StartCoroutine(TimeStartGame());
-        }
-    }
-
-    IEnumerator TimeStartGame()
-    {
-        startTime = 4;
-        timeTxt.gameObject.SetActive(true);
-        while(startTime > 0)
-        {
-            startTime -= 1f;
-            timeTxt.text = $"{(int)startTime}";
-            yield return new WaitForSeconds(1f);
-        }
-        gameStart = true;   
-        timeTxt.gameObject.SetActive(false);
-
-        RPC_SysnGame();
-    }
-
-    [Rpc(RpcSources.StateAuthority , RpcTargets.All)]
-    public void RPC_SysnGame()
-    {
-        if (!Runner.IsSharedModeMasterClient) return;
-
-        for (int i = 0; i < pointArray.Length; i++)
-        {
-            NetworkObject tmp = GetObjectToPools(weapon);
-            if (tmp == null)
+            if(Runner.TryGetPlayerObject(p , out var objectPlayer))
             {
-                tmp.transform.position = pointArray[i].position;
-                tmp.transform.rotation = Quaternion.identity;
+                PlayerStats stat = objectPlayer.GetComponent<PlayerStats>();
+                if(stat != null)
+                {
+                    stats.Add(stat);
+                }
             }
         }
-        CanSpawn = true;
-    }
 
+        var getData = stats.OrderByDescending(x => x.score).ToArray();
+
+        for(int i = 0; i < getData.Length; i++)
+        {
+            NetworkObject tmp = Runner.Spawn(content , parent.transform.position);
+            tmp.transform.SetParent(parent.transform);
+
+            Text[] txt = tmp.GetComponentsInChildren<Text>();
+            txt[0].text = i.ToString();
+            txt[1].text = getData[i].name;
+            txt[2].text = getData[i].score.ToString();
+        }
+    }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         Debug.Log("Có Player tham gia phòng");
-        CheckGameStart();
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
-        
+
     }
 
     #region INetworkRunnerCallbacks
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
     {
-        
+
     }
 
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
     {
-       
+
     }
 
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
-       
+
     }
 
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
     {
-        
+
     }
 
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
     {
-      
+
     }
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
     {
-      
+
     }
 
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message)
     {
-      
+
     }
 
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data)
     {
-        
+
     }
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)
     {
-        
+
     }
 
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
-       
+
     }
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
     {
-       
+
     }
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
-  
+
     }
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
     {
-        
+
     }
 
     public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data)
     {
-      
+
     }
 
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken)
     {
-      
+
     }
 
     public void OnSceneLoadDone(NetworkRunner runner)
     {
-      
+
     }
 
     public void OnSceneLoadStart(NetworkRunner runner)
     {
-    
+
     }
 
     #endregion
 }
+
+public enum GameState { WaitPlayers, Starting, Playing }
+
+public enum ResultGame { None,Win, Lose}

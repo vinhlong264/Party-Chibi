@@ -16,7 +16,7 @@ public class ChatUI : MonoBehaviour
     {
         if (messageInput.text == string.Empty) return;
 
-        ChatManager.Instance.SendChat(messageInput.text);
+        UI_Manager.Instance.SendChat(messageInput.text);
         messageInput.text = string.Empty;
     }
 }

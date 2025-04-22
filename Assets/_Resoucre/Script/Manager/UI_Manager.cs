@@ -1,11 +1,11 @@
-using Fusion;
+﻿using Fusion;
 using UnityEngine;
 
-public class ChatManager : NetworkBehaviour
+public class UI_Manager : NetworkBehaviour
 {
-    private static ChatManager instance;
+    private static UI_Manager instance;
 
-    public static ChatManager Instance { get => instance; }
+    public static UI_Manager Instance { get => instance; }
 
     [SerializeField] private NetworkObject content;
     [SerializeField] private Transform containerContent;
@@ -31,9 +31,11 @@ public class ChatManager : NetworkBehaviour
     public void RPC_ReceiveChat(string nameCharacter , string message)
     {
         NetworkObject content_network = Runner.Spawn(content , Vector3.zero , Quaternion.identity);
-        content_network.transform.parent = containerContent;
-
-
-        content_network.GetComponent<MesseageContent>().setUpMessage(nameCharacter , message);
+        if(content_network != null)
+        {
+            Debug.Log("Gửi tin nhắn thành công");
+            content_network.transform.SetParent(containerContent.transform);
+            content_network.GetComponent<MesseageContent>().setUpMessage(nameCharacter, message);
+        }
     }
 }

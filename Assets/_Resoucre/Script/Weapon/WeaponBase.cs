@@ -23,6 +23,11 @@ public abstract class WeaponBase : NetworkBehaviour, IWeapon
         handler = GetComponentInChildren<DameWeaponHandler>();
     }
 
+    public virtual void ExcuteWeapon(Vector3 startPos, Vector3 dir)
+    {
+
+    }
+
     public void SetPostion(Transform pos, Vector3 rotation)
     {
         this.transform.localRotation = Quaternion.Euler(rotation);

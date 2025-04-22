@@ -5,8 +5,10 @@ using UnityEngine;
 public class RoomManager : SimulationBehaviour, IPlayerJoined
 {
     [SerializeField] private GameObject playerPrefabs;
+    private Vector3 spawnPos;
     public void PlayerJoined(PlayerRef player)
     {
+
         if (player == Runner.LocalPlayer)
         {
             StartCoroutine(SpawnPlayer(player));
@@ -19,7 +21,13 @@ public class RoomManager : SimulationBehaviour, IPlayerJoined
 
         yield return new WaitUntil(() => GameManager.instance != null);
 
-        NetworkObject tmp = Runner.Spawn(playerPrefabs, new Vector3(Random.Range(-5f , 20f), -0.5f, -7f), Quaternion.identity, Runner.LocalPlayer, (Runner, Object) =>
+        yield return new WaitUntil(() => GameManager.instance.gameState != GameState.Playing);
+
+        spawnPos = GameObject.Find("PosPlayer").transform.position;
+
+        yield return new WaitUntil(() => spawnPos != Vector3.zero);
+
+        NetworkObject tmp = Runner.Spawn(playerPrefabs, spawnPos + new Vector3(Random.Range(-1f, 1f),0, Random.Range(-1f, 1f)), Quaternion.identity, Runner.LocalPlayer, (Runner, Object) =>
         {
             Player player = Object.GetComponent<Player>();
             if (player != null)

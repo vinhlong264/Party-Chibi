@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 6328863080654346672}
   - component: {fileID: 2440333173488270571}
   - component: {fileID: 8206474224187799110}
-  - component: {fileID: -3893421311052056098}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -98,27 +97,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00f4d0c072d23c641a3ae9c75156c4ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startTime: 0
+  _gameTimer: 0
+  _gameTimePlay: 0
   pointArray:
   - {fileID: 4876168623113398263}
   - {fileID: 7998942755648478662}
   weapon: {fileID: 7816970640640960763, guid: 4e3fcb4dc45fcce47a0bb9c88dbba7d5, type: 3}
-  _gameStart:
-    _value: 0
---- !u!114 &-3893421311052056098
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8677988432240039824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1541381998, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Guid:
-    RawGuidValue: cc2232776235cd143809248302e7639f
+  _gameState: 0
+  content: {fileID: 3962669924676039905, guid: 54363d73c359acd4b9b3a0ba47fe4b81, type: 3}
+  parent: {fileID: 0}
 --- !u!1 &9024101587193746471
 GameObject:
   m_ObjectHideFlags: 0

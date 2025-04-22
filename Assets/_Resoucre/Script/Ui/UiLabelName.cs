@@ -18,8 +18,13 @@ public class UiLabelName : MonoBehaviour
         nametxt.transform.rotation = Quaternion.LookRotation(camePos.forward);
     }
 
-    public void SetUpLabelname(string labelname)
+    public void SetUpLabelname(string labelname , bool isLocalPlayer)
     {
         nametxt.text = labelname;
+
+        if (isLocalPlayer)
+        {
+            nametxt.color = Color.red;
+        }
     }
 }

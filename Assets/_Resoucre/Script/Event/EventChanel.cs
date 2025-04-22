@@ -34,7 +34,7 @@ public static class EventChanel
         }
     }
 
-    public static void NotifyEvent(KeyEvent key, object[] value)
+    public static void NotifyEvent(KeyEvent key, object[] value = null)
     {
         if (observer.ContainsKey(key))
         {
@@ -49,5 +49,6 @@ public static class EventChanel
 public enum KeyEvent
 {
     HealthBar,
-    Status
+    Status,
+    System
 }
